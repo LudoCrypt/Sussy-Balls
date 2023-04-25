@@ -1,25 +1,25 @@
 package net.ludocrypt.sussyballs;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.inventory.CraftingContainer;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.CustomRecipe;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.FlowerBlock;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.FlowerBlock;
+import net.minecraft.inventory.CraftingInventory;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.item.crafting.SpecialRecipe;
+import net.minecraft.potion.Effect;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 
-public class SuspiciousSnowballRecipe extends CustomRecipe {
+public class SuspiciousSnowballRecipe extends SpecialRecipe {
 
 	public SuspiciousSnowballRecipe(ResourceLocation id) {
 		super(id);
 	}
 
 	@Override
-	public boolean matches(CraftingContainer container, Level level) {
+	public boolean matches(CraftingInventory container, World world) {
 		boolean flag = false;
 		boolean flag1 = false;
 		boolean flag2 = false;
@@ -28,14 +28,14 @@ public class SuspiciousSnowballRecipe extends CustomRecipe {
 		for (int i = 0; i < container.getContainerSize(); ++i) {
 			ItemStack itemstack = container.getItem(i);
 			if (!itemstack.isEmpty()) {
-				if (itemstack.is(Blocks.BROWN_MUSHROOM.asItem()) && !flag2) {
+				if (itemstack.getItem().equals(Blocks.BROWN_MUSHROOM.asItem()) && !flag2) {
 					flag2 = true;
-				} else if (itemstack.is(Blocks.RED_MUSHROOM.asItem()) && !flag1) {
+				} else if (itemstack.getItem().equals(Blocks.RED_MUSHROOM.asItem()) && !flag1) {
 					flag1 = true;
-				} else if ((itemstack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof FlowerBlock) && !flag) {
+				} else if ((itemstack.getItem() instanceof BlockItem && ((BlockItem) itemstack.getItem()).getBlock() instanceof FlowerBlock) && !flag) {
 					flag = true;
 				} else {
-					if (!(itemstack.is(Items.SNOWBALL) || itemstack.is(SussyBalls.SUSPICIOUS_SNOWBALL.get())) || flag3) {
+					if (!(itemstack.getItem().equals(Items.SNOWBALL) || itemstack.getItem().equals(SussyBalls.SUSPICIOUS_SNOWBALL.get())) || flag3) {
 						return false;
 					}
 
@@ -48,10 +48,10 @@ public class SuspiciousSnowballRecipe extends CustomRecipe {
 	}
 
 	@Override
-	public ItemStack assemble(CraftingContainer container) {
+	public ItemStack assemble(CraftingInventory container) {
 		ItemStack cocktailStack = null;
 		for (int i = 0; i < container.getContainerSize(); ++i) {
-			if (container.getItem(i).is(SussyBalls.SUSPICIOUS_SNOWBALL.get())) {
+			if (container.getItem(i).getItem().equals(SussyBalls.SUSPICIOUS_SNOWBALL.get())) {
 				cocktailStack = container.getItem(i);
 				break;
 			}
@@ -63,9 +63,10 @@ public class SuspiciousSnowballRecipe extends CustomRecipe {
 			ItemStack stack = container.getItem(i);
 			if (!stack.isEmpty()) {
 
-				if (stack.getItem() instanceof BlockItem && ((BlockItem) stack.getItem()).getBlock() instanceof FlowerBlock flowerBlock) {
-					MobEffect mobeffect = flowerBlock.getSuspiciousStewEffect();
-					SuspiciousSnowball.addEffectToStew(suspiciousSnowball, mobeffect, flowerBlock.getEffectDuration());
+				if (stack.getItem() instanceof BlockItem && ((BlockItem) stack.getItem()).getBlock() instanceof FlowerBlock) {
+					FlowerBlock flowerblock = (FlowerBlock) ((BlockItem) stack.getItem()).getBlock();
+					Effect effect = flowerblock.getSuspiciousStewEffect();
+					SuspiciousSnowball.addEffectToStew(suspiciousSnowball, effect, flowerblock.getEffectDuration());
 				}
 			}
 		}
@@ -79,7 +80,7 @@ public class SuspiciousSnowballRecipe extends CustomRecipe {
 	}
 
 	@Override
-	public RecipeSerializer<?> getSerializer() {
+	public IRecipeSerializer<?> getSerializer() {
 		return SussyBalls.SUSPICIOUS_SNOWBALL_RECIPE.get();
 	}
 }

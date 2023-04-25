@@ -2,13 +2,12 @@ package net.ludocrypt.sussyballs;
 
 import java.util.function.Consumer;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SnowballItem;
-import net.minecraftforge.common.ForgeHooks;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.SnowballItem;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.potion.Effect;
+import net.minecraft.potion.EffectInstance;
 
 public class SuspiciousSnowball extends SnowballItem {
 
@@ -16,24 +15,23 @@ public class SuspiciousSnowball extends SnowballItem {
 		super(properties);
 	}
 
-	public static void addEffectToStew(ItemStack stack, MobEffect effect, int duration) {
-		CompoundTag tag = stack.getOrCreateTag();
-		ListTag list = tag.getList("Effects", 10);
-		CompoundTag effectTag = new CompoundTag();
-		effectTag.putInt("EffectId", MobEffect.getId(effect));
-		ForgeHooks.saveMobEffect(effectTag, "forge:effect_id", effect);
+	public static void addEffectToStew(ItemStack stack, Effect effect, int duration) {
+		CompoundNBT tag = stack.getOrCreateTag();
+		ListNBT list = tag.getList("Effects", 10);
+		CompoundNBT effectTag = new CompoundNBT();
+		effectTag.putInt("EffectId", Effect.getId(effect));
 		effectTag.putInt("EffectDuration", duration);
 		list.add(effectTag);
 		tag.put("Effects", list);
 	}
 
-	public static void listPotionEffects(ItemStack stack, Consumer<MobEffectInstance> consumer) {
-		CompoundTag tag = stack.getTag();
+	public static void listPotionEffects(ItemStack stack, Consumer<EffectInstance> consumer) {
+		CompoundNBT tag = stack.getTag();
 		if (tag != null && tag.contains("Effects", 9)) {
-			ListTag list = tag.getList("Effects", 10);
+			ListNBT list = tag.getList("Effects", 10);
 
 			for (int i = 0; i < list.size(); ++i) {
-				CompoundTag effectTag = list.getCompound(i);
+				CompoundNBT effectTag = list.getCompound(i);
 				int j;
 				if (effectTag.contains("EffectDuration", 3)) {
 					j = effectTag.getInt("EffectDuration");
@@ -41,10 +39,9 @@ public class SuspiciousSnowball extends SnowballItem {
 					j = 160;
 				}
 
-				MobEffect effect = MobEffect.byId(effectTag.getInt("EffectId"));
-				effect = ForgeHooks.loadMobEffect(effectTag, "forge:effect_id", effect);
+				Effect effect = Effect.byId(effectTag.getInt("EffectId"));
 				if (effect != null) {
-					consumer.accept(new MobEffectInstance(effect, j));
+					consumer.accept(new EffectInstance(effect, j));
 				}
 			}
 		}
