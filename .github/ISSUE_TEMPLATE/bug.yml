@@ -33,13 +33,6 @@ body:
             required: false
     -   type: input
         attributes:
-            label: Operating System
-            description: The operating system you were using when the bug occured
-            placeholder: Windows 11
-        validations:
-            required: false
-    -   type: input
-        attributes:
             label: Mod Version
             description: The version of the mod you were using when the bug occured
             placeholder: 1.0.0
