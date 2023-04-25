@@ -47,9 +47,9 @@ body:
             required: true
     -   type: input
         attributes:
-            label: Forge Version
-            description: The version of Forge you were using when the bug occured
-            placeholder: 36.2.0
+            label: Loader
+            description: The modloader you were using when the bug occured
+            placeholder: Forge
         validations:
             required: true
     -   type: markdown
