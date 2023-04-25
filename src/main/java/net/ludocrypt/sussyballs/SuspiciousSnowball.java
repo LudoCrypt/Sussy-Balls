@@ -1,21 +1,13 @@
 package net.ludocrypt.sussyballs;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
-
-import javax.annotation.Nullable;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SnowballItem;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.alchemy.PotionUtils;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeHooks;
 
 public class SuspiciousSnowball extends SnowballItem {
@@ -55,16 +47,6 @@ public class SuspiciousSnowball extends SnowballItem {
 					consumer.accept(new MobEffectInstance(effect, j));
 				}
 			}
-		}
-	}
-
-	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> text, TooltipFlag flags) {
-		super.appendHoverText(stack, level, text, flags);
-		if (flags.isCreative()) {
-			List<MobEffectInstance> list = new ArrayList<>();
-			listPotionEffects(stack, list::add);
-			PotionUtils.addPotionTooltip(list, text, 1.0F);
 		}
 	}
 

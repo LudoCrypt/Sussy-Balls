@@ -1,9 +1,8 @@
 {
 	"pack": {
-		"description": {
-			"text": "sussyballs resources"
-		},
-		"forge:server_data_pack_format": 12,
-		"pack_format": 13
+		"description": "sussyballs resources",
+		"pack_format": 9,
+		"forge:resource_pack_format": 8,
+		"forge:data_pack_format": 9
 	}
 }
