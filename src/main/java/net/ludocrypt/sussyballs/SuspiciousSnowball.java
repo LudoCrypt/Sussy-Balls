@@ -1,10 +1,7 @@
 package net.ludocrypt.sussyballs;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 
-import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.Item;
@@ -12,9 +9,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.SnowballItem;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.potion.PotionUtil;
-import net.minecraft.text.Text;
-import net.minecraft.world.World;
 
 public class SuspiciousSnowball extends SnowballItem {
 
@@ -51,16 +45,6 @@ public class SuspiciousSnowball extends SnowballItem {
 					consumer.accept(new StatusEffectInstance(effect, j));
 				}
 			}
-		}
-	}
-
-	@Override
-	public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipContext context) {
-		super.appendTooltip(stack, world, tooltip, context);
-		if (context.isCreative()) {
-			List<StatusEffectInstance> list = new ArrayList<>();
-			listPotionEffects(stack, list::add);
-			PotionUtil.buildTooltip(list, tooltip, 1.0F);
 		}
 	}
 

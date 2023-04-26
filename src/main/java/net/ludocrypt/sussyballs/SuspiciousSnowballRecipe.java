@@ -1,22 +1,21 @@
 package net.ludocrypt.sussyballs;
 
 import net.minecraft.block.Blocks;
-import net.minecraft.block.SuspiciousStewIngredient;
+import net.minecraft.block.FlowerBlock;
+import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.SpecialCraftingRecipe;
-import net.minecraft.recipe.book.CraftingRecipeCategory;
-import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
 public class SuspiciousSnowballRecipe extends SpecialCraftingRecipe {
 
-	public SuspiciousSnowballRecipe(Identifier id, CraftingRecipeCategory category) {
-		super(id, category);
+	public SuspiciousSnowballRecipe(Identifier id) {
+		super(id);
 	}
 
 	@Override
@@ -33,7 +32,7 @@ public class SuspiciousSnowballRecipe extends SpecialCraftingRecipe {
 					flag2 = true;
 				} else if (itemstack.isOf(Blocks.RED_MUSHROOM.asItem()) && !flag1) {
 					flag1 = true;
-				} else if ((itemstack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof SuspiciousStewIngredient) && !flag) {
+				} else if ((itemstack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof FlowerBlock) && !flag) {
 					flag = true;
 				} else {
 					if (!(itemstack.isOf(Items.SNOWBALL) || itemstack.isOf(SussyBalls.SUSPICIOUS_SNOWBALL)) || flag3) {
@@ -49,7 +48,7 @@ public class SuspiciousSnowballRecipe extends SpecialCraftingRecipe {
 	}
 
 	@Override
-	public ItemStack craft(CraftingInventory container, DynamicRegistryManager registryManager) {
+	public ItemStack craft(CraftingInventory container) {
 		ItemStack cocktailStack = null;
 		for (int i = 0; i < container.size(); ++i) {
 			if (container.getStack(i).isOf(SussyBalls.SUSPICIOUS_SNOWBALL)) {
@@ -63,10 +62,9 @@ public class SuspiciousSnowballRecipe extends SpecialCraftingRecipe {
 		for (int i = 0; i < container.size(); ++i) {
 			ItemStack stack = container.getStack(i);
 			if (!stack.isEmpty()) {
-				SuspiciousStewIngredient suspiciouseffectholder = SuspiciousStewIngredient.of(stack.getItem());
-				if (suspiciouseffectholder != null) {
-					SuspiciousSnowball.addEffectToStew(suspiciousSnowball, suspiciouseffectholder.getEffectInStew(), suspiciouseffectholder.getEffectInStewDuration());
-					break;
+				if (stack.getItem() instanceof BlockItem && ((BlockItem) stack.getItem()).getBlock() instanceof FlowerBlock flowerBlock) {
+					StatusEffect mobeffect = flowerBlock.getEffectInStew();
+					SuspiciousSnowball.addEffectToStew(suspiciousSnowball, mobeffect, flowerBlock.getEffectInStewDuration());
 				}
 			}
 		}
