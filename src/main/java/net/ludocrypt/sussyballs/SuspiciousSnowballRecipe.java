@@ -1,41 +1,42 @@
 package net.ludocrypt.sussyballs;
 
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.CraftingContainer;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.CustomRecipe;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.SuspiciousEffectHolder;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.SuspiciousStewIngredient;
+import net.minecraft.inventory.CraftingInventory;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.recipe.RecipeSerializer;
+import net.minecraft.recipe.SpecialCraftingRecipe;
+import net.minecraft.recipe.book.CraftingRecipeCategory;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.util.Identifier;
+import net.minecraft.world.World;
 
-public class SuspiciousSnowballRecipe extends CustomRecipe {
-	public SuspiciousSnowballRecipe(ResourceLocation id, CraftingBookCategory category) {
+public class SuspiciousSnowballRecipe extends SpecialCraftingRecipe {
+
+	public SuspiciousSnowballRecipe(Identifier id, CraftingRecipeCategory category) {
 		super(id, category);
 	}
 
 	@Override
-	public boolean matches(CraftingContainer container, Level level) {
+	public boolean matches(CraftingInventory container, World world) {
 		boolean flag = false;
 		boolean flag1 = false;
 		boolean flag2 = false;
 		boolean flag3 = false;
 
-		for (int i = 0; i < container.getContainerSize(); ++i) {
-			ItemStack itemstack = container.getItem(i);
+		for (int i = 0; i < container.size(); ++i) {
+			ItemStack itemstack = container.getStack(i);
 			if (!itemstack.isEmpty()) {
-				if (itemstack.is(Blocks.BROWN_MUSHROOM.asItem()) && !flag2) {
+				if (itemstack.isOf(Blocks.BROWN_MUSHROOM.asItem()) && !flag2) {
 					flag2 = true;
-				} else if (itemstack.is(Blocks.RED_MUSHROOM.asItem()) && !flag1) {
+				} else if (itemstack.isOf(Blocks.RED_MUSHROOM.asItem()) && !flag1) {
 					flag1 = true;
-				} else if ((itemstack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof SuspiciousEffectHolder) && !flag) {
+				} else if ((itemstack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof SuspiciousStewIngredient) && !flag) {
 					flag = true;
 				} else {
-					if (!(itemstack.is(Items.SNOWBALL) || itemstack.is(SussyBalls.SUSPICIOUS_SNOWBALL.get())) || flag3) {
+					if (!(itemstack.isOf(Items.SNOWBALL) || itemstack.isOf(SussyBalls.SUSPICIOUS_SNOWBALL)) || flag3) {
 						return false;
 					}
 
@@ -48,23 +49,23 @@ public class SuspiciousSnowballRecipe extends CustomRecipe {
 	}
 
 	@Override
-	public ItemStack assemble(CraftingContainer container, RegistryAccess registry) {
+	public ItemStack craft(CraftingInventory container, DynamicRegistryManager registryManager) {
 		ItemStack cocktailStack = null;
-		for (int i = 0; i < container.getContainerSize(); ++i) {
-			if (container.getItem(i).is(SussyBalls.SUSPICIOUS_SNOWBALL.get())) {
-				cocktailStack = container.getItem(i);
+		for (int i = 0; i < container.size(); ++i) {
+			if (container.getStack(i).isOf(SussyBalls.SUSPICIOUS_SNOWBALL)) {
+				cocktailStack = container.getStack(i);
 				break;
 			}
 		}
 
-		ItemStack suspiciousSnowball = cocktailStack != null ? cocktailStack.copy() : new ItemStack(SussyBalls.SUSPICIOUS_SNOWBALL.get(), 1);
+		ItemStack suspiciousSnowball = cocktailStack != null ? cocktailStack.copy() : new ItemStack(SussyBalls.SUSPICIOUS_SNOWBALL, 1);
 
-		for (int i = 0; i < container.getContainerSize(); ++i) {
-			ItemStack stack = container.getItem(i);
+		for (int i = 0; i < container.size(); ++i) {
+			ItemStack stack = container.getStack(i);
 			if (!stack.isEmpty()) {
-				SuspiciousEffectHolder suspiciouseffectholder = SuspiciousEffectHolder.tryGet(stack.getItem());
+				SuspiciousStewIngredient suspiciouseffectholder = SuspiciousStewIngredient.of(stack.getItem());
 				if (suspiciouseffectholder != null) {
-					SuspiciousSnowball.addEffectToStew(suspiciousSnowball, suspiciouseffectholder.getSuspiciousEffect(), suspiciouseffectholder.getEffectDuration());
+					SuspiciousSnowball.addEffectToStew(suspiciousSnowball, suspiciouseffectholder.getEffectInStew(), suspiciouseffectholder.getEffectInStewDuration());
 					break;
 				}
 			}
@@ -74,12 +75,13 @@ public class SuspiciousSnowballRecipe extends CustomRecipe {
 	}
 
 	@Override
-	public boolean canCraftInDimensions(int x, int y) {
+	public boolean fits(int x, int y) {
 		return x >= 2 && y >= 2;
 	}
 
 	@Override
 	public RecipeSerializer<?> getSerializer() {
-		return SussyBalls.SUSPICIOUS_SNOWBALL_RECIPE.get();
+		return SussyBalls.SUSPICIOUS_SNOWBALL_RECIPE;
 	}
+
 }

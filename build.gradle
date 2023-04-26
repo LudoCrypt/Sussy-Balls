@@ -1,109 +1,60 @@
 plugins {
-    id 'eclipse'
-    id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '5.1.+'
+	id 'fabric-loom' version '1.1-SNAPSHOT'
+	id 'maven-publish'
 }
 
-version = '1.19.4-1.0.0'
-group = 'net.ludocrypt.sussyballs'
-archivesBaseName = 'sussyballs'
-
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-
-minecraft {
-    mappings channel: 'official', version: '1.19.4'
-
-    runs {
-        client {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', 'sussyballs'
-            mods {
-                sussyballs {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        server {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', 'sussyballs'
-            mods {
-                sussyballs {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        gameTestServer {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', 'sussyballs'
-            mods {
-                sussyballs {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        data {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            args '--mod', 'sussyballs', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-            mods {
-                sussyballs {
-                    source sourceSets.main
-                }
-            }
-        }
-    }
-}
-
-sourceSets.main.resources { srcDir 'src/generated/resources' }
+version = project.mod_version
+group = project.maven_group
 
 repositories {
 
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19.4-45.0.49'
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }
 
-// Example for how to get properties into the manifest for reading at runtime.
-jar {
-    manifest {
-        attributes([
-                "Specification-Title"     : "sussyballs",
-                "Specification-Vendor"    : "sussyballssareus",
-                "Specification-Version"   : "1",
-                "Implementation-Title"    : project.name,
-                "Implementation-Version"  : project.jar.archiveVersion,
-                "Implementation-Vendor"   : "sussyballssareus",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
-    }
+base {
+	archivesName = project.archives_base_name
 }
 
-jar.finalizedBy('reobfJar')
+processResources {
+	inputs.property "version", project.version
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact jar
-        }
-    }
-    repositories {
-        maven {
-            url "file://${project.projectDir}/mcmodsrepo"
-        }
-    }
+	filesMatching("fabric.mod.json") {
+		expand "version": project.version
+	}
 }
 
 tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
+	it.options.release = 17
+}
+
+java {
+	withSourcesJar()
+
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+}
+
+jar {
+	from("LICENSE") {
+		rename { "${it}_${base.archivesName.get()}"}
+	}
+}
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			from components.java
+		}
+	}
+
+	repositories {
+
+	}
 }

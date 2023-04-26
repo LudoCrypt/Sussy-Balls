@@ -3,82 +3,46 @@ package net.ludocrypt.sussyballs;
 import java.util.List;
 import java.util.Set;
 
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.projectile.Snowball;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemStackLinkedSet;
-import net.minecraft.world.item.SuspiciousStewItem;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
-import net.minecraft.world.level.block.SuspiciousEffectHolder;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.CreativeModeTabEvent;
-import net.minecraftforge.event.entity.ProjectileImpactEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents.ModifyEntries;
+import net.minecraft.block.SuspiciousStewIngredient;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroups;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemStackSet;
+import net.minecraft.recipe.RecipeSerializer;
+import net.minecraft.recipe.SpecialRecipeSerializer;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.util.Identifier;
 
-@Mod(SussyBalls.MODID)
-public class SussyBalls {
+public class SussyBalls implements ModInitializer {
 
 	public static final String MODID = "sussyballs";
+	public static final Item SUSPICIOUS_SNOWBALL = Registry.register(Registries.ITEM, new Identifier(MODID, "suspicious_snowball"), new SuspiciousSnowball(new Item.Settings().maxCount(1)));
+	public static final RecipeSerializer<SuspiciousSnowballRecipe> SUSPICIOUS_SNOWBALL_RECIPE = Registry.register(Registries.RECIPE_SERIALIZER,
+			new Identifier(MODID, "crafting_special_suspicioussnowball"), new SpecialRecipeSerializer<SuspiciousSnowballRecipe>(SuspiciousSnowballRecipe::new));
 
-	public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
+	@Override
+	public void onInitialize() {
+		ItemGroupEvents.modifyEntriesEvent(ItemGroups.FOOD_AND_DRINK).register(new ModifyEntries() {
 
-	public static final RegistryObject<Item> SUSPICIOUS_SNOWBALL = ITEMS.register("suspicious_snowball", () -> new SuspiciousSnowball(new Item.Properties().stacksTo(1)));
+			@Override
+			public void modifyEntries(FabricItemGroupEntries entries) {
+				List<SuspiciousStewIngredient> list = SuspiciousStewIngredient.getAll();
+				Set<ItemStack> set = ItemStackSet.create();
 
-	public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SEIALIZERS = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, MODID);
-
-	public static final RegistryObject<RecipeSerializer<SuspiciousSnowballRecipe>> SUSPICIOUS_SNOWBALL_RECIPE = RECIPE_SEIALIZERS.register("crafting_special_suspicioussnowball",
-			() -> new SimpleCraftingRecipeSerializer<>(SuspiciousSnowballRecipe::new));
-
-	public SussyBalls() {
-		IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-
-		ITEMS.register(modEventBus);
-		RECIPE_SEIALIZERS.register(modEventBus);
-
-		MinecraftForge.EVENT_BUS.register(this);
-
-		modEventBus.addListener(this::addCreative);
-	}
-
-	private void addCreative(CreativeModeTabEvent.BuildContents event) {
-		if (event.getTab() == CreativeModeTabs.FOOD_AND_DRINKS) {
-			List<SuspiciousEffectHolder> list = SuspiciousEffectHolder.getAllEffectHolders();
-			Set<ItemStack> set = ItemStackLinkedSet.createTypeAndTagSet();
-
-			for (SuspiciousEffectHolder suspiciouseffectholder : list) {
-				ItemStack itemstack = new ItemStack(SUSPICIOUS_SNOWBALL.get());
-				SuspiciousStewItem.saveMobEffect(itemstack, suspiciouseffectholder.getSuspiciousEffect(), suspiciouseffectholder.getEffectDuration());
-				set.add(itemstack);
-			}
-
-			event.acceptAll(set, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-		}
-	}
-
-	@SubscribeEvent
-	public void onProjectileImpact(ProjectileImpactEvent event) {
-		if (event.getEntity() instanceof Snowball snowball) {
-			if (snowball.getItem().is(SussyBalls.SUSPICIOUS_SNOWBALL.get())) {
-				if (event.getRayTraceResult().getType().equals(HitResult.Type.ENTITY)) {
-					EntityHitResult hit = (EntityHitResult) event.getRayTraceResult();
-					if (hit.getEntity() instanceof LivingEntity living) {
-						SuspiciousSnowball.listPotionEffects(snowball.getItem(), living::addEffect);
-					}
+				for (SuspiciousStewIngredient suspiciouseffectholder : list) {
+					ItemStack itemstack = new ItemStack(SUSPICIOUS_SNOWBALL);
+					SuspiciousSnowball.addEffectToStew(itemstack, suspiciouseffectholder.getEffectInStew(), suspiciouseffectholder.getEffectInStewDuration());
+					set.add(itemstack);
 				}
-			}
-		}
-	}
 
+				entries.addAll(set);
+			}
+
+		});
+	}
 }

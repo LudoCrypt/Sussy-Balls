@@ -4,44 +4,41 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import javax.annotation.Nullable;
-
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SnowballItem;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.alchemy.PotionUtils;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.common.ForgeHooks;
+import net.minecraft.client.item.TooltipContext;
+import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.SnowballItem;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.potion.PotionUtil;
+import net.minecraft.text.Text;
+import net.minecraft.world.World;
 
 public class SuspiciousSnowball extends SnowballItem {
 
-	public SuspiciousSnowball(Properties properties) {
+	public SuspiciousSnowball(Item.Settings properties) {
 		super(properties);
 	}
 
-	public static void addEffectToStew(ItemStack stack, MobEffect effect, int duration) {
-		CompoundTag tag = stack.getOrCreateTag();
-		ListTag list = tag.getList("Effects", 10);
-		CompoundTag effectTag = new CompoundTag();
-		effectTag.putInt("EffectId", MobEffect.getId(effect));
-		ForgeHooks.saveMobEffect(effectTag, "forge:effect_id", effect);
+	public static void addEffectToStew(ItemStack stack, StatusEffect effect, int duration) {
+		NbtCompound tag = stack.getOrCreateNbt();
+		NbtList list = tag.getList("Effects", 10);
+		NbtCompound effectTag = new NbtCompound();
+		effectTag.putInt("EffectId", StatusEffect.getRawId(effect));
 		effectTag.putInt("EffectDuration", duration);
 		list.add(effectTag);
 		tag.put("Effects", list);
 	}
 
-	public static void listPotionEffects(ItemStack stack, Consumer<MobEffectInstance> consumer) {
-		CompoundTag tag = stack.getTag();
+	public static void listPotionEffects(ItemStack stack, Consumer<StatusEffectInstance> consumer) {
+		NbtCompound tag = stack.getNbt();
 		if (tag != null && tag.contains("Effects", 9)) {
-			ListTag list = tag.getList("Effects", 10);
+			NbtList list = tag.getList("Effects", 10);
 
 			for (int i = 0; i < list.size(); ++i) {
-				CompoundTag effectTag = list.getCompound(i);
+				NbtCompound effectTag = list.getCompound(i);
 				int j;
 				if (effectTag.contains("EffectDuration", 3)) {
 					j = effectTag.getInt("EffectDuration");
@@ -49,22 +46,21 @@ public class SuspiciousSnowball extends SnowballItem {
 					j = 160;
 				}
 
-				MobEffect effect = MobEffect.byId(effectTag.getInt("EffectId"));
-				effect = ForgeHooks.loadMobEffect(effectTag, "forge:effect_id", effect);
+				StatusEffect effect = StatusEffect.byRawId(effectTag.getInt("EffectId"));
 				if (effect != null) {
-					consumer.accept(new MobEffectInstance(effect, j));
+					consumer.accept(new StatusEffectInstance(effect, j));
 				}
 			}
 		}
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> text, TooltipFlag flags) {
-		super.appendHoverText(stack, level, text, flags);
-		if (flags.isCreative()) {
-			List<MobEffectInstance> list = new ArrayList<>();
+	public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipContext context) {
+		super.appendTooltip(stack, world, tooltip, context);
+		if (context.isCreative()) {
+			List<StatusEffectInstance> list = new ArrayList<>();
 			listPotionEffects(stack, list::add);
-			PotionUtils.addPotionTooltip(list, text, 1.0F);
+			PotionUtil.buildTooltip(list, tooltip, 1.0F);
 		}
 	}
 

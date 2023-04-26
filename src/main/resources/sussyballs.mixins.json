@@ -1,0 +1,14 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "net.ludocrypt.sussyballs.mixin",
+	"compatibilityLevel": "JAVA_17",
+	"mixins": [
+		"ProjectileEntityMixin"
+	],
+	"client": [
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

@@ -1,0 +1,32 @@
+{
+	"schemaVersion": 1,
+	"id": "sussyballs",
+	"version": "${version}",
+	"name": "Sussy Balls",
+	"description": "Craft Suspicious Snowballs using the ingredients from Suspicious Stews!\n\nLogo made by nekomaster1000 & LudoCrypt\nTexture by Aux",
+	"authors": [
+		"LudoCrypt"
+	],
+	"contact": {
+		"homepage": "https://modrinth.com/mod/sussy-balls",
+		"sources": "https://github.com/LudoCrypt/Sussy-Balls",
+		"issues": "https://github.com/LudoCrypt/Sussy-Balls/issues"
+	},
+	"license": "LGPLv3.0",
+	"icon": "assets/sussyballs/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"net.ludocrypt.sussyballs.SussyBalls"
+		]
+	},
+	"mixins": [
+		"sussyballs.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.14.17",
+		"fabric-api": "*",
+		"minecraft": "~1.19.4",
+		"java": ">=17"
+	}
+}
