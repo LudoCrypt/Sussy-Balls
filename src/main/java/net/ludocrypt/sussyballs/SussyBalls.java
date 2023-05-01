@@ -1,18 +1,26 @@
 package net.ludocrypt.sussyballs;
 
+import net.minecraft.block.DispenserBlock;
+import net.minecraft.dispenser.IPosition;
+import net.minecraft.dispenser.ProjectileDispenseBehavior;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.SnowballEntity;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.SpecialRecipeSerializer;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -38,6 +46,20 @@ public class SussyBalls {
 		RECIPE_SEIALIZERS.register(modEventBus);
 
 		MinecraftForge.EVENT_BUS.register(this);
+
+		modEventBus.addListener(this::commonSetup);
+	}
+
+	private void commonSetup(FMLCommonSetupEvent event) {
+		event.enqueueWork(() -> {
+			DispenserBlock.registerBehavior(SUSPICIOUS_SNOWBALL.get(), new ProjectileDispenseBehavior() {
+				protected ProjectileEntity getProjectile(World world, IPosition pos, ItemStack stack) {
+					return Util.make(new SnowballEntity(world, pos.x(), pos.y(), pos.z()), (projectile) -> {
+						projectile.setItem(stack);
+					});
+				}
+			});
+		});
 	}
 
 	@SubscribeEvent
