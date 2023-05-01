@@ -7,7 +7,11 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents.ModifyEntries;
+import net.minecraft.block.DispenserBlock;
 import net.minecraft.block.SuspiciousStewIngredient;
+import net.minecraft.block.dispenser.ProjectileDispenserBehavior;
+import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.entity.projectile.thrown.SnowballEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
@@ -17,6 +21,9 @@ import net.minecraft.recipe.SpecialRecipeSerializer;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
+import net.minecraft.util.math.Position;
+import net.minecraft.world.World;
 
 public class SussyBalls implements ModInitializer {
 
@@ -41,6 +48,15 @@ public class SussyBalls implements ModInitializer {
 				}
 
 				entries.addAll(set);
+			}
+
+		});
+
+		DispenserBlock.registerBehavior(SUSPICIOUS_SNOWBALL, new ProjectileDispenserBehavior() {
+
+			@Override
+			protected ProjectileEntity createProjectile(World world, Position position, ItemStack stack) {
+				return Util.make(new SnowballEntity(world, position.getX(), position.getY(), position.getZ()), entity -> entity.setItem(stack));
 			}
 
 		});
